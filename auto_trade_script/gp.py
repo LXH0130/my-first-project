@@ -6,7 +6,8 @@ import pytesseract
 import pyautogui
 import re
 import logging
-import pyperclip
+import numpy as np
+from PIL import Image
 
 pyautogui.FAILSAFE=False
 logging.basicConfig(filename='gp.log',level=logging.INFO)
