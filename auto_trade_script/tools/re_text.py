@@ -7,7 +7,6 @@ import numpy as np
 # 截图坐标初始化
 x, y, width, height= 190, 670, 100, 30
 
-
 def simple_binarize(input_image, threshold=200):
     """
     最简单的二值化函数
@@ -26,28 +25,24 @@ def simple_binarize(input_image, threshold=200):
     return binary_image
 
 def simple_capture_and_recognize(x, y, width, height):
-    """简化版本的验证码识别"""
+    """简化版本的文本识别"""
     try:
         # 截图
         screenshot = pyautogui.screenshot(region=(x, y, width, height))
         binary_img = simple_binarize(screenshot)
 
-        screenshot.save('screenshot.png')
-        binary_img.save('binary_img.png')
+        binary_img.save()
 
-        # 直接识别（不进行复杂预处理）
+        # 直接识别（不进行复杂预处理
         custom_config = r'--oem 3 --psm 8'
-        text = pytesseract.image_to_string(screenshot, config=custom_config)
+        text = pytesseract.image_to_string(binary_img, config=custom_config)
 
-        print(text)
+        text = re.sub(r'\D', '', text)
 
-        test = re.sub(r'\D', '', text)
-
-        print(test)
         # 清理结果
         text = ''.join(filter(str.isalnum, text))
 
-        return text, screenshot, True if text else False
+        return text
 
     except Exception as e:
         print(f"识别过程中出错: {e}")

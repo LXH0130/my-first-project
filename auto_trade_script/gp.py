@@ -52,7 +52,7 @@ def simple_capture_and_recognize(x, y, width, height):
         screenshot = pyautogui.screenshot(region=(x, y, width, height))
         binary_img = simple_binarize(screenshot)
 
-        binary_img.save()
+        binary_img.save("binary_img.png")
 
         # 直接识别（不进行复杂预处理
         custom_config = r'--oem 3 --psm 8'
