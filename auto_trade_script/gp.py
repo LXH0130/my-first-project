@@ -63,7 +63,7 @@ def simple_capture_and_recognize(x, y, width, height):
         # 清理结果
         text = ''.join(filter(str.isalnum, text))
 
-        return text, screenshot, True if text else False
+        return text
 
     except Exception as e:
         print(f"识别过程中出错: {e}")
@@ -91,6 +91,7 @@ def auto_buy(stock_code,price, amount):
     #检测代码是否输入错误
     while True:
         ident_result = simple_capture_and_recognize(x_code_cap, y_code_cap, width, height)
+        time.sleep(tt)
         if ident_result == stock_code:  # 对比代码显示正确
             break
         else:
