@@ -1,9 +1,7 @@
 #同花顺版本
 import sys
-import socket
-import struct
 import json
-import threading, time, datetime
+import time
 import pytesseract
 import pyautogui
 import re
@@ -30,21 +28,40 @@ x_trade, y_trade = 334, 306
 x_code_cap, y_code_cap = 284, 125
 width, height = 100, 20
 
-# 识别指定图片的字符串
+def simple_binarize(input_image, threshold=200):
+    """
+    最简单的二值化函数
+    """
+    # 打开图片并转为灰度
+    img_grey = input_image.convert('L')
+    img_array = np.array(img_grey, 'uint8')
+
+    # 二值化
+    binary_array = (img_array > threshold).astype(np.uint8) * 255
+
+    # 保存
+    binary_image = Image.fromarray(binary_array)
+    print(f"二值化完成")
+
+    return binary_image
+
 def simple_capture_and_recognize(x, y, width, height):
+    """简化版本的验证码识别"""
     try:
         # 截图
         screenshot = pyautogui.screenshot(region=(x, y, width, height))
+        binary_img = simple_binarize(screenshot)
 
-        # 直接识别（不进行复杂预处理）
+        # 直接识别（不进行复杂预处理
         custom_config = r'--oem 3 --psm 8'
-        text = pytesseract.image_to_string(screenshot, config=custom_config)
+        text = pytesseract.image_to_string(binary_img, config=custom_config)
 
         text = re.sub(r'\D', '', text)
+
         # 清理结果
         text = ''.join(filter(str.isalnum, text))
 
-        return text
+        return text, screenshot, True if text else False
 
     except Exception as e:
         print(f"识别过程中出错: {e}")
@@ -54,15 +71,6 @@ def clear():
     pyautogui.doubleClick(x=x_code, y=y_code, button="left") #双击选中
     pyautogui.press('del')
     time.sleep(tt)
-    
-def judge():
-    pyautogui.doubleClick(x=x_code, y=y_code, button="left") #双击选中
-    pyautogui.hotkey('ctrl', 'c')
-    content=pyperclip.paste()
-    if len(content)!=6:
-        logging.error('import code is error, code len is %d, please import again.', len(content))
-        return False
-    return content
     
 def auto_buy(stock_code,price, amount):
     clear()
@@ -81,10 +89,10 @@ def auto_buy(stock_code,price, amount):
     #检测代码是否输入错误
     while True:
         ident_result = simple_capture_and_recognize(x_code_cap, y_code_cap, width, height)
-        if len(ident_result) == 6:  # 对比代码显示正确
+        if ident_result == stock_code:  # 对比代码显示正确
             break
         else:
-            logging.info('identy code is %s, len is not 6.', ident_result,)
+            logging.info('identy code is %s, diff from %s.', ident_result, stock_code)
             pyautogui.typewrite(stock_code)
             time.sleep(tt)
     
@@ -131,10 +139,10 @@ def auto_sell(stock_code,price, amount):
     # 检测代码是否输入错误
     while True:
         ident_result = simple_capture_and_recognize(x_code_cap, y_code_cap, width, height)
-        if len(ident_result) == 6:  # 对比代码显示正确
+        if ident_result == stock_code:  # 对比代码显示正确
             break
         else:
-            logging.info('identy code is %s, len is not 6.', ident_result, )
+            logging.info('identy code is %s, diff from %s.', ident_result, stock_code)
             pyautogui.typewrite(stock_code)
             time.sleep(tt)
     
