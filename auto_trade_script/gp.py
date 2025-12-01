@@ -41,7 +41,7 @@ def simple_binarize(input_image, threshold=200):
 
     # 保存
     binary_image = Image.fromarray(binary_array)
-    print(f"二值化完成")
+    logging.info("二值化完成")
 
     return binary_image
 
@@ -66,8 +66,8 @@ def simple_capture_and_recognize(x, y, width, height):
         return text
 
     except Exception as e:
-        print(f"识别过程中出错: {e}")
-        return None, None, False
+        logging.error(f"识别过程中出错: {e}")
+        return None
 
 def clear():
     pyautogui.doubleClick(x=x_code, y=y_code, button="left") #双击选中
